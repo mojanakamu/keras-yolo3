@@ -6,6 +6,7 @@ Class definition of YOLO_v3 style detection model on image and video
 import colorsys
 import os
 import glob
+import csv
 from timeit import default_timer as timer
 
 import numpy as np
@@ -212,8 +213,11 @@ def detect_video(yolo, video_path, output_path=""):
     yolo.close_session()
 
 def detect_img(yolo):
-    test_data_path = "data/test01/img/*.jpg"
-    for file in glob.glob(test_data_path):
+    test_data_path = 'data/test01/img/'
+    data=[
+            ("img_path", 'detect_xmin', 'detect_xmax', 'detect_ymin', 'detect_ymax'),
+    ]
+    for file in glob.glob(test_data_path + '*.jpg'):
         try:
             image = Image.open(file)
         except:
@@ -224,8 +228,13 @@ def detect_img(yolo):
             print(type(r_image))
             import cv2
             cv2.imwrite("out.jpg", np.asarray(r_image)[..., ::-1])
+            data.append((file, '10', '20', '30', '40'))
             #r_image.show()
     yolo.close_session()
+    with open('csv.csv', 'w') as f:
+        writer = csv.writer(f)
+        for row in data:
+            writer.writerow(row) 
 
 if __name__ == '__main__':
     detect_img(YOLO())

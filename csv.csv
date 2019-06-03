@@ -1,0 +1,4 @@
+img_path,detect_xmin,detect_xmax,detect_ymin,detect_ymax
+data/test01/img/spaniel.jpg,10,20,30,40
+data/test01/img/maltese.jpg,10,20,30,40
+data/test01/img/dachshund.jpg,10,20,30,40
