@@ -166,7 +166,7 @@ class YOLO(object):
 
         end = timer()
         print(end - start)
-        return image
+        return image, predicted_class, score, left, right, top, bottom
 
     def close_session(self):
         self.sess.close()
@@ -213,25 +213,28 @@ def detect_video(yolo, video_path, output_path=""):
     yolo.close_session()
 
 def detect_img(yolo):
-    test_data_path = 'data/test01/img/'
+    test_data_path = 'data/test01/'
+    test_data_img_path = test_data_path + 'img/'
+    test_data_estimation_result_path = test_data_path + 'estimation/'
     data=[
-            ("img_path", 'detect_xmin', 'detect_xmax', 'detect_ymin', 'detect_ymax'),
+            ("img_path", 'predicted_class', 'score', 'x_min', 'x_max', 'y_min', 'y_max'),
     ]
-    for file in glob.glob(test_data_path + '*.jpg'):
+    for file in glob.glob(test_data_img_path + '*.jpg'):
         try:
             image = Image.open(file)
         except:
             print('Open Error! Try again!')
             continue
         else:
-            r_image = yolo.detect_image(image)
+            r_image, predicted_class, score, x_min, x_max, y_min, y_max = yolo.detect_image(image)
             print(type(r_image))
             import cv2
             cv2.imwrite("out.jpg", np.asarray(r_image)[..., ::-1])
-            data.append((file, '10', '20', '30', '40'))
+            data.append((file, predicted_class, score, x_min, x_max, y_min, y_max))
             #r_image.show()
     yolo.close_session()
-    with open('csv.csv', 'w') as f:
+    os.makedirs(test_data_estimation_result_path, exist_ok=True)
+    with open(test_data_estimation_result_path + 'estimation.csv', 'w') as f:
         writer = csv.writer(f)
         for row in data:
             writer.writerow(row) 
