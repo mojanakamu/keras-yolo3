@@ -9,7 +9,19 @@ HIGH_COLOR = np.array([255, 128, 128])
 
 test_data_path = '../' + 'data/test01/'
 test_data_img_path = test_data_path + 'img/'
+correct_pixels_path = test_data_img_path + 'correct_pixels/'
+estimation_pixels_path = test_data_img_path + 'estimation_pixels/'
+roi_path = test_data_img_path + 'roi/'
 test_data_estimation_result_path = test_data_path + 'estimation/'
+
+data=[
+        ("img_path", 'predicted_class', 'score', 'estimation_pixels', 'correct_pixels', 'roi'),
+]
+
+#正解、推定領域の画像保存先ディレクトリ作成
+os.makedirs(correct_pixels_path, exist_ok=True)
+os.makedirs(estimation_pixels_path, exist_ok=True)
+os.makedirs(roi_path, exist_ok=True)
 
 with open(test_data_estimation_result_path + 'estimation.csv', 'r') as f:
     reader = csv.reader(f)
@@ -52,6 +64,8 @@ with open(test_data_estimation_result_path + 'estimation.csv', 'r') as f:
         #正解データの長方形をを青色で塗りつぶす
         src1 = cv2.rectangle(base, (correct_xmin, correct_ymin), (correct_xmax, correct_ymax), (255, 255, 0), thickness=-1)
         correct_pixels = (correct_xmax - correct_xmin) * (correct_ymax - correct_ymin) 
+        correct_rec = cv2.addWeighted(src1, 0.5, cv2.imread('../' + row[0]), 0.5, 0)
+        cv2.imwrite(correct_pixels_path + image_name + '.jpg', correct_rec)
         print('正解面積:' +  str(correct_pixels))
 
         #推定データの長方形を赤色で塗りつぶす
@@ -61,11 +75,14 @@ with open(test_data_estimation_result_path + 'estimation.csv', 'r') as f:
         estimation_ymax = int(float(row[6]))
         src2 = cv2.rectangle(base2, (estimation_xmin, estimation_ymin), (estimation_xmax, estimation_ymax), (255, 0, 255), thickness=-1)
         estimation_pixels = (estimation_xmax - estimation_xmin) * (estimation_ymax - estimation_ymin) 
+        estimation_rec = cv2.addWeighted(src2, 0.5, cv2.imread('../' + row[0]), 0.5, 0)
+        cv2.imwrite(estimation_pixels_path + image_name + '.jpg', estimation_rec)
         print('推定面積:' +  str(estimation_pixels)) 
 
         #正解と推定画像合成
         dst = cv2.addWeighted(src1, 0.5, src2, 0.5, 0)
-        cv2.imwrite('opencv_draw_argument.jpg', dst)
+        dst_rec = cv2.addWeighted(dst, 0.5, cv2.imread('../' + row[0]), 0.5, 0)
+        cv2.imwrite(roi_path + image_name + '.jpg', dst_rec)
 
         # 重複部分抽出と面積
         ex_img = cv2.inRange(dst,LOW_COLOR,HIGH_COLOR)
@@ -76,4 +93,13 @@ with open(test_data_estimation_result_path + 'estimation.csv', 'r') as f:
         #iou(0.9以上を検出成功とみなすか？)
         iou = white_pixels/(correct_pixels + estimation_pixels - white_pixels)
         print('iou:' +  str(iou))
+
+        data.append((row[0], row[1], row[2], estimation_pixels_path + image_name + '.jpg', correct_pixels_path + image_name + '.jpg', roi_path + image_name + '.jpg'))
+    
+    with open(test_data_estimation_result_path + 'comparison.csv', 'w') as f:
+        writer = csv.writer(f)
+        for row in data:
+            writer.writerow(row) 
+
+    
         
