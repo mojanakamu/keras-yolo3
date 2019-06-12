@@ -1,0 +1,4 @@
+img_path,predicted_class,score,x_min,x_max,y_min,y_max
+/Users/kouki/myenv/keras-yolo3/data/test01/img/spaniel.jpg,dog,0.99898195,213,426,49,287
+/Users/kouki/myenv/keras-yolo3/data/test01/img/maltese.jpg,dog,0.99731624,78,281,51,326
+/Users/kouki/myenv/keras-yolo3/data/test01/img/dachshund.jpg,dog,0.9980298,23,311,36,273

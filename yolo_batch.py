@@ -19,6 +19,7 @@ from yolo3.model import yolo_eval, yolo_body, tiny_yolo_body
 from yolo3.utils import letterbox_image
 import os
 from keras.utils import multi_gpu_model
+import sys
 
 class YOLO(object):
     _defaults = {
@@ -213,13 +214,30 @@ def detect_video(yolo, video_path, output_path=""):
     yolo.close_session()
 
 def detect_img(yolo):
-    test_data_path = 'data/test01/'
-    test_data_img_path = test_data_path + 'img/'
-    test_data_estimation_result_path = test_data_path + 'estimation/'
+    args = sys.argv
+    current_dir = os.path.dirname(os.path.abspath(__file__))
+    test_data_parent_path = os.path.join(current_dir, "data", args[1])
+    if len(args) ==2:
+        print("第1引数：" + args[1])
+        if  os.path.isdir(test_data_parent_path) :
+            print("テスト対象フォルダ存在")
+        else:
+            print('テスト対象フォルダ存在なし')
+            quit()
+    else:
+        print('以下形式でテスト対象フォルダを指定してください')
+        print('$ python yolo_batch.py  <folder> ')
+        quit()
+
+    test_data_parent_path = os.path.join(current_dir, "data", args[1])
+    test_data_img_path = os.path.join(test_data_parent_path, "img")
+    test_data_estimation_result_path = os.path.join(test_data_parent_path, "estimation")
     data=[
             ("img_path", 'predicted_class', 'score', 'x_min', 'x_max', 'y_min', 'y_max'),
     ]
-    for file in glob.glob(test_data_img_path + '*.jpg'):
+    print(test_data_parent_path)
+
+    for file in glob.glob(os.path.join(test_data_img_path, "*.jpg")):
         try:
             image = Image.open(file)
         except:
@@ -234,7 +252,7 @@ def detect_img(yolo):
             #r_image.show()
     yolo.close_session()
     os.makedirs(test_data_estimation_result_path, exist_ok=True)
-    with open(test_data_estimation_result_path + 'estimation.csv', 'w') as f:
+    with open(os.path.join(test_data_estimation_result_path, "estimation.csv'"), 'w') as f:
         writer = csv.writer(f)
         for row in data:
             writer.writerow(row) 
