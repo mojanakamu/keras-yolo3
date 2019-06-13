@@ -215,10 +215,10 @@ def detect_video(yolo, video_path, output_path=""):
 
 def detect_img(yolo):
     args = sys.argv
-    current_dir = os.path.dirname(os.path.abspath(__file__))
-    test_data_parent_path = os.path.join(current_dir, "data", args[1])
     if len(args) ==2:
         print("第1引数：" + args[1])
+        current_dir = os.path.dirname(os.path.abspath(__file__))
+        test_data_parent_path = os.path.join(current_dir, "data", args[1])
         if  os.path.isdir(test_data_parent_path) :
             print("テスト対象フォルダ存在")
         else:
@@ -252,7 +252,7 @@ def detect_img(yolo):
             #r_image.show()
     yolo.close_session()
     os.makedirs(test_data_estimation_result_path, exist_ok=True)
-    with open(os.path.join(test_data_estimation_result_path, "estimation.csv'"), 'w') as f:
+    with open(os.path.join(test_data_estimation_result_path, "estimation.csv"), 'w') as f:
         writer = csv.writer(f)
         for row in data:
             writer.writerow(row) 
