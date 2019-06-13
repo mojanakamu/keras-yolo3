@@ -3,16 +3,33 @@ import numpy as np
 import os
 import csv
 import xml.etree.ElementTree as ET
+import sys
 
 LOW_COLOR = np.array([255, 128, 128])
 HIGH_COLOR = np.array([255, 128, 128])
 
-test_data_path = '../' + 'data/test01/'
-test_data_img_path = test_data_path + 'img/'
-correct_pixels_path = test_data_img_path + 'correct_pixels/'
-estimation_pixels_path = test_data_img_path + 'estimation_pixels/'
-roi_path = test_data_img_path + 'roi/'
-test_data_estimation_result_path = test_data_path + 'estimation/'
+args = sys.argv
+if len(args) ==2:
+    print("第1引数：" + args[1])
+    current_dir = os.path.dirname(os.path.abspath(__file__))
+    project_root_path = os.path.dirname(current_dir)
+    test_data_parent_path = os.path.join(project_root_path, "data", args[1])
+    print(test_data_parent_path)
+    estimation_result_path = os.path.join(test_data_parent_path, "estimation")
+    if os.path.exists(os.path.join(estimation_result_path, "estimation.csv")):
+        print('モデル推定結果csvファイルあり')
+    else:
+        print('モデル推定結果csvファイルなし')
+        quit()
+else:
+    print('以下形式でテスト対象フォルダを指定してください')
+    print('$ python iou.py  <folder> ')
+    quit()
+    
+test_data_img_path = os.path.join(test_data_parent_path, "img")
+correct_pixels_path = os.path.join(test_data_img_path, "correct_pixels")
+estimation_pixels_path = os.path.join(test_data_img_path, "estimation_pixels")
+roi_path = os.path.join(test_data_img_path, "roi")
 
 data=[
         ("img_path", 'predicted_class', 'score', 'estimation_pixels', 'correct_pixels', 'roi'),
@@ -23,7 +40,7 @@ os.makedirs(correct_pixels_path, exist_ok=True)
 os.makedirs(estimation_pixels_path, exist_ok=True)
 os.makedirs(roi_path, exist_ok=True)
 
-with open(test_data_estimation_result_path + 'estimation.csv', 'r') as f:
+with open(os.path.join(estimation_result_path, "estimation.csv"), 'r') as f:
     reader = csv.reader(f)
     header = next(reader) 
 
@@ -34,8 +51,10 @@ with open(test_data_estimation_result_path + 'estimation.csv', 'r') as f:
         print('image_path:' + row[0])
         image_name_start_index = row[0].rfind('/')
         image_name_last_index = row[0].rfind('.')
-        image_name =row[0][image_name_start_index:image_name_last_index]
-        correct_xml_path = test_data_path + 'correct/Annotations'  + image_name + '.xml'
+        image_name =row[0][image_name_start_index+1:image_name_last_index]
+        print(image_name)
+        #correct_xml_path = test_data_path + 'correct/Annotations'  + image_name + '.xml'
+        correct_xml_path = os.path.join(test_data_parent_path, "correct", "Annotations", image_name + ".xml")
         print('correct_xml_path:' + correct_xml_path)
 
         #xmlを解析。正解座標を抽出
@@ -50,7 +69,7 @@ with open(test_data_estimation_result_path + 'estimation.csv', 'r') as f:
         #print(type(estimation_xmin))
         
         #iou対象画像読み込み
-        img = cv2.imread('../' + row[0])
+        img = cv2.imread(row[0])
 
         # 画像の大きさを取得
         height, width = img.shape[:2]
@@ -64,8 +83,8 @@ with open(test_data_estimation_result_path + 'estimation.csv', 'r') as f:
         #正解データの長方形をを青色で塗りつぶす
         src1 = cv2.rectangle(base, (correct_xmin, correct_ymin), (correct_xmax, correct_ymax), (255, 255, 0), thickness=-1)
         correct_pixels = (correct_xmax - correct_xmin) * (correct_ymax - correct_ymin) 
-        correct_rec = cv2.addWeighted(src1, 0.5, cv2.imread('../' + row[0]), 0.5, 0)
-        cv2.imwrite(correct_pixels_path + image_name + '.jpg', correct_rec)
+        correct_rec = cv2.addWeighted(src1, 0.5, cv2.imread(row[0]), 0.5, 0)
+        cv2.imwrite(os.path.join(correct_pixels_path, image_name + ".jpg"), correct_rec)
         print('正解面積:' +  str(correct_pixels))
 
         #推定データの長方形を赤色で塗りつぶす
@@ -75,14 +94,14 @@ with open(test_data_estimation_result_path + 'estimation.csv', 'r') as f:
         estimation_ymax = int(float(row[6]))
         src2 = cv2.rectangle(base2, (estimation_xmin, estimation_ymin), (estimation_xmax, estimation_ymax), (255, 0, 255), thickness=-1)
         estimation_pixels = (estimation_xmax - estimation_xmin) * (estimation_ymax - estimation_ymin) 
-        estimation_rec = cv2.addWeighted(src2, 0.5, cv2.imread('../' + row[0]), 0.5, 0)
-        cv2.imwrite(estimation_pixels_path + image_name + '.jpg', estimation_rec)
+        estimation_rec = cv2.addWeighted(src2, 0.5, cv2.imread(row[0]), 0.5, 0)
+        cv2.imwrite(os.path.join(estimation_pixels_path, image_name + ".jpg"), estimation_rec)
         print('推定面積:' +  str(estimation_pixels)) 
 
         #正解と推定画像合成
         dst = cv2.addWeighted(src1, 0.5, src2, 0.5, 0)
-        dst_rec = cv2.addWeighted(dst, 0.5, cv2.imread('../' + row[0]), 0.5, 0)
-        cv2.imwrite(roi_path + image_name + '.jpg', dst_rec)
+        dst_rec = cv2.addWeighted(dst, 0.5, cv2.imread(row[0]), 0.5, 0)
+        cv2.imwrite(os.path.join(roi_path, image_name + ".jpg"), dst_rec)
 
         # 重複部分抽出と面積
         ex_img = cv2.inRange(dst,LOW_COLOR,HIGH_COLOR)
@@ -94,9 +113,9 @@ with open(test_data_estimation_result_path + 'estimation.csv', 'r') as f:
         iou = white_pixels/(correct_pixels + estimation_pixels - white_pixels)
         print('iou:' +  str(iou))
 
-        data.append((row[0], row[1], row[2], estimation_pixels_path + image_name + '.jpg', correct_pixels_path + image_name + '.jpg', roi_path + image_name + '.jpg'))
+        data.append((row[0], row[1], row[2], os.path.join(estimation_pixels_path, image_name + ".jpg"), os.path.join(correct_pixels_path, image_name + ".jpg"), os.path.join(roi_path, image_name + ".jpg")))
     
-    with open(test_data_estimation_result_path + 'comparison.csv', 'w') as f:
+    with open(os.path.join(estimation_result_path, "comparison.csv"), 'w') as f:
         writer = csv.writer(f)
         for row in data:
             writer.writerow(row) 

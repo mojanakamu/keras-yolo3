@@ -1,4 +1,4 @@
 img_path,predicted_class,score,estimation_pixels,correct_pixels,roi
-data/test01/img/spaniel.jpg,dog,0.99898195,../data/test01/img/estimation_pixels//spaniel.jpg,../data/test01/img/correct_pixels//spaniel.jpg,../data/test01/img/roi//spaniel.jpg
-data/test01/img/maltese.jpg,dog,0.99731624,../data/test01/img/estimation_pixels//maltese.jpg,../data/test01/img/correct_pixels//maltese.jpg,../data/test01/img/roi//maltese.jpg
-data/test01/img/dachshund.jpg,dog,0.9980298,../data/test01/img/estimation_pixels//dachshund.jpg,../data/test01/img/correct_pixels//dachshund.jpg,../data/test01/img/roi//dachshund.jpg
+/Users/kouki/myenv/keras-yolo3/data/test01/img/spaniel.jpg,dog,0.99898195,/Users/kouki/myenv/keras-yolo3/data/test01/img/estimation_pixels/spaniel.jpg,/Users/kouki/myenv/keras-yolo3/data/test01/img/correct_pixels/spaniel.jpg,/Users/kouki/myenv/keras-yolo3/data/test01/img/roi/spaniel.jpg
+/Users/kouki/myenv/keras-yolo3/data/test01/img/maltese.jpg,dog,0.99731624,/Users/kouki/myenv/keras-yolo3/data/test01/img/estimation_pixels/maltese.jpg,/Users/kouki/myenv/keras-yolo3/data/test01/img/correct_pixels/maltese.jpg,/Users/kouki/myenv/keras-yolo3/data/test01/img/roi/maltese.jpg
+/Users/kouki/myenv/keras-yolo3/data/test01/img/dachshund.jpg,dog,0.9980298,/Users/kouki/myenv/keras-yolo3/data/test01/img/estimation_pixels/dachshund.jpg,/Users/kouki/myenv/keras-yolo3/data/test01/img/correct_pixels/dachshund.jpg,/Users/kouki/myenv/keras-yolo3/data/test01/img/roi/dachshund.jpg
